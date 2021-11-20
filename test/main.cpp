@@ -1,40 +1,101 @@
 #include <iostream>
-#ifdef __APPLE__
-    #include <OpenCL/cl.hpp>
+#include <fstream>
+#include <string>
+#include <memory>
+#include <stdlib.h>
+
+#define __CL_ENABLE_EXCEPTIONS
+#if defined(__APPLE__) || defined(__MACOSX)
+#include <OpenCL/cl.cpp>
 #else
-    #include <CL/cl2.hpp>
+#include <CL/cl2.hpp>
 #endif
 
-int main() {
-    // get all platforms (drivers), e.g. NVIDIA
-    std::vector<cl::Platform> all_platforms;
-    cl::Platform::get(&all_platforms);
+int main( int argc, char** argv ) {
 
-    if (all_platforms.size()==0) {
-        std::cout<<" No platforms found. Check OpenCL installation!\n";
-        exit(1);
-    }
-    std::vector<cl::Device> gpus;
-    int gpu_index;
-    for (int i = 0; i < all_platforms.size(); i++){
-        all_platforms[i].getDevices(CL_DEVICE_TYPE_GPU, &gpus);
-        if (gpus.size() > 0){
-            gpu_index = i;
-            break;
+    const int N_ELEMENTS=1024*1024;
+    unsigned int platform_id=0, device_id=0;
+
+    try{
+        std::unique_ptr<int[]> A(new int[N_ELEMENTS]); // Or you can use simple dynamic arrays like: int* A = new int[N_ELEMENTS];
+        std::unique_ptr<int[]> B(new int[N_ELEMENTS]);
+        std::unique_ptr<int[]> C(new int[N_ELEMENTS]);
+
+        for( int i = 0; i < N_ELEMENTS; ++i ) {
+            A[i] = i;
+            B[i] = i;
         }
-        else{
-            std::cout << "No GPUs found";
-            exit(1);
-        }
+        
+        // Query for platforms
+        std::vector<cl::Platform> platforms;
+        cl::Platform::get(&platforms);
+        /*
+        std::cout << platforms[0].getInfo<CL_PLATFORM_NAME>();
+        // Get a list of devices on this platform
+        
+        std::vector<cl::Device> devices;
+        platforms[platform_id].getDevices(CL_DEVICE_TYPE_GPU, &devices); // Select the platform.
+
+        // Create a context
+        cl::Context context(devices);
+
+        // Create a command queue
+        cl::CommandQueue queue = cl::CommandQueue( context, devices[device_id] );   // Select the device.
+
+        // Create the memory buffers
+        cl::Buffer bufferA=cl::Buffer(context, CL_MEM_READ_ONLY, N_ELEMENTS * sizeof(int));
+        cl::Buffer bufferB=cl::Buffer(context, CL_MEM_READ_ONLY, N_ELEMENTS * sizeof(int));
+        cl::Buffer bufferC=cl::Buffer(context, CL_MEM_WRITE_ONLY, N_ELEMENTS * sizeof(int));
+
+        // Copy the input data to the input buffers using the command queue.
+        queue.enqueueWriteBuffer( bufferA, CL_FALSE, 0, N_ELEMENTS * sizeof(int), A.get() );
+        queue.enqueueWriteBuffer( bufferB, CL_FALSE, 0, N_ELEMENTS * sizeof(int), B.get() );
+
+        // Read the program source
+        std::ifstream sourceFile("vector_add_kernel.cl");
+        std::string sourceCode( std::istreambuf_iterator<char>(sourceFile), (std::istreambuf_iterator<char>()));
+        cl::Program::Sources source(1, std::make_pair(sourceCode.c_str(), sourceCode.length()));
+
+        // Make program from the source code
+        cl::Program program=cl::Program(context, source);
+
+        // Build the program for the devices
+        program.build(devices);
+
+        // Make kernel
+        cl::Kernel vecadd_kernel(program, "vecadd");
+
+        // Set the kernel arguments
+        vecadd_kernel.setArg( 0, bufferA );
+        vecadd_kernel.setArg( 1, bufferB );
+        vecadd_kernel.setArg( 2, bufferC );
+
+        // Execute the kernel
+        cl::NDRange global( N_ELEMENTS );
+        cl::NDRange local( 256 );
+        queue.enqueueNDRangeKernel( vecadd_kernel, cl::NullRange, global, local );
+
+        // Copy the output data back to the host
+        queue.enqueueReadBuffer( bufferC, CL_TRUE, 0, N_ELEMENTS * sizeof(int), C.get() );
+
+        // Verify the result
+        bool result=true;
+        for (int i=0; i<N_ELEMENTS; i ++)
+            if (C[i] !=A[i]+B[i]) {
+                result=false;
+                break;
+            }
+        if (result)
+            std::cout<< "Success!\n";
+        else
+            std::cout<< "Failed!\n";
+    */
     }
-    cl::Platform default_platform = all_platforms[gpu_index];
-    std::cout << "Using platform: "<<default_platform.getInfo<CL_PLATFORM_NAME>()<<"\n";
+    catch(cl::Error err) {
+        std::cout << "Error: " << err.what() << "(" << err.err() << ")" << std::endl;
+        return( EXIT_FAILURE );
+    }
 
-    // use device[1] because that's a GPU; device[0] is the CPU
-    cl::Device default_device = gpus[0];
-    std::cout<< "Using device: "<<default_device.getInfo<CL_DEVICE_NAME>()<<"\n";
-
-    cl::Context context({default_device});
-
-    cl::CommandQueue queue(context, default_device);
+    std::cout << "Done.\n";
+    return( EXIT_SUCCESS );
 }
