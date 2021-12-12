@@ -8,7 +8,7 @@
 #if defined(__APPLE__) || defined(__MACOSX)
 #include <OpenCL/cl.cpp>
 #else
-#include <CL/cl2.hpp>
+#include <CL/cl.hpp>
 #endif
 
 int main( int argc, char** argv ) {
@@ -26,10 +26,12 @@ int main( int argc, char** argv ) {
             B[i] = i;
         }
         
+        
         // Query for platforms
         std::vector<cl::Platform> platforms;
         cl::Platform::get(&platforms);
-        /*
+        
+        
         std::cout << platforms[0].getInfo<CL_PLATFORM_NAME>();
         // Get a list of devices on this platform
         
@@ -89,13 +91,13 @@ int main( int argc, char** argv ) {
             std::cout<< "Success!\n";
         else
             std::cout<< "Failed!\n";
-    */
+    
     }
     catch(cl::Error err) {
         std::cout << "Error: " << err.what() << "(" << err.err() << ")" << std::endl;
         return( EXIT_FAILURE );
     }
-
+    
     std::cout << "Done.\n";
     return( EXIT_SUCCESS );
 }
