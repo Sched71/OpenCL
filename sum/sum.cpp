@@ -60,8 +60,7 @@ int main(int argc, char const *argv[])
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         std::cout << n[0] << std::endl;
         std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
-        std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << "[ns]" << std::endl;
-
+        std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::milliseconds> (end - begin).count() << "[ms]" << std::endl;
 
         int cpu_res = 0;
         begin = std::chrono::steady_clock::now();
@@ -70,7 +69,7 @@ int main(int argc, char const *argv[])
         end = std::chrono::steady_clock::now();
         std::cout << cpu_res <<  std::endl;
         std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
-        std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << "[ns]" << std::endl;
+        std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::milliseconds> (end - begin).count() << "[ms]" << std::endl;
 
         cpu_res = 0;
         begin = std::chrono::steady_clock::now();
@@ -78,7 +77,7 @@ int main(int argc, char const *argv[])
         end = std::chrono::steady_clock::now();
         std::cout << cpu_res << std::endl;
         std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
-        std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << "[ns]" << std::endl;
+        std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::milliseconds> (end - begin).count() << "[ms]" << std::endl;
     }
     catch(cl::Error err){
         std::cout << "Error: " << err.what() << "(" << err.err() << ")" << std::endl;

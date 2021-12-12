@@ -13,7 +13,8 @@
 
 int main( int argc, char** argv ) {
 
-    const int N_ELEMENTS=1024*1024;
+
+    const int N_ELEMENTS=16;
     unsigned int platform_id=0, device_id=0;
 
     try{
@@ -65,7 +66,7 @@ int main( int argc, char** argv ) {
         program.build(devices);
 
         // Make kernel
-        cl::Kernel vecadd_kernel(program, "vecadd");
+        cl::Kernel vecadd_kernel(program, "sum");
 
         // Set the kernel arguments
         vecadd_kernel.setArg( 0, bufferA );
@@ -74,14 +75,14 @@ int main( int argc, char** argv ) {
 
         // Execute the kernel
         cl::NDRange global( N_ELEMENTS );
-        cl::NDRange local( 256 );
+        cl::NDRange local( 16 );
         queue.enqueueNDRangeKernel( vecadd_kernel, cl::NullRange, global, local );
 
         // Copy the output data back to the host
         queue.enqueueReadBuffer( bufferC, CL_TRUE, 0, N_ELEMENTS * sizeof(int), C.get() );
 
         // Verify the result
-        bool result=true;
+        /*bool result=true;
         for (int i=0; i<N_ELEMENTS; i ++)
             if (C[i] !=A[i]+B[i]) {
                 result=false;
@@ -90,7 +91,8 @@ int main( int argc, char** argv ) {
         if (result)
             std::cout<< "Success!\n";
         else
-            std::cout<< "Failed!\n";
+            std::cout<< "Failed!\n";*/
+        std::cout << C[0];
     
     }
     catch(cl::Error err) {
@@ -100,4 +102,5 @@ int main( int argc, char** argv ) {
     
     std::cout << "Done.\n";
     return( EXIT_SUCCESS );
+    
 }
